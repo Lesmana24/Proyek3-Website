@@ -1,0 +1,168 @@
+body {
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Mengesampingkan padding container bootstrap default untuk area welcome */
+.container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.welcome-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 0;
+    gap: 40px;
+}
+
+.content-left {
+    flex: 1;
+    max-width: 550px;
+}
+
+.judul {
+    font-size: 5.5rem;
+    /* Larger */
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 40px;
+    letter-spacing: -1.5px;
+}
+
+.text-gray {
+    color: #767676;
+    /* Warna abu-abu sesuai mockup */
+}
+
+.text-green {
+    color: #517C32;
+    /* Warna hijau sesuai mockup */
+}
+
+.button-group {
+    display: flex;
+    gap: 20px;
+}
+
+.button-group a {
+    text-decoration: none;
+    font-size: 1.15rem;
+    padding: 14px 40px;
+    border-radius: 50px;
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.btn-masuk {
+    background-color: #517C32;
+    color: white;
+    border: 2px solid #517C32;
+}
+
+.btn-masuk:hover {
+    background-color: #3e6126;
+    border-color: #3e6126;
+    color: white;
+}
+
+.btn-daftar {
+    background-color: white;
+    color: #767676;
+    border: 2px solid #517C32;
+}
+
+.btn-daftar:hover {
+    background-color: #f4fbf0;
+    color: #517C32;
+}
+
+.content-right {
+    flex: 1.2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.image-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
+}
+
+.shape-bg {
+    position: absolute;
+    bottom: 5%;
+    left: 8%;
+    right: 8%;
+    top: 5%;
+    /* Make it tall like an arch */
+    background-color: #517C32;
+    border-radius: 200px 200px 40px 40px;
+    /* Semi circle top, rounded bottom corners */
+    z-index: 1;
+}
+
+.plant-image {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    /* mix-blend-mode dihapus agar tanaman tidak menjadi gelap */
+}
+
+/* Responsiveness */
+@media (max-width: 991px) {
+    .welcome-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 60px;
+    }
+
+    .judul {
+        font-size: 4rem;
+    }
+
+    .button-group {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .judul {
+        font-size: 3rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .button-group a {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .shape-bg {
+        border-radius: 150px 150px 30px 30px;
+    }
+}

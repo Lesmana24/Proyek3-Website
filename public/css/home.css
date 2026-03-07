@@ -226,7 +226,7 @@ h1 {
 .leaf.right {
   bottom: 70px;
   right: -200px;
-  width: 280px;
+  width: 300px;
   transform: rotate(-85deg);
 }
 

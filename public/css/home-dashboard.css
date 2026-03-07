@@ -1,0 +1,409 @@
+body {
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #6b9e4a;
+    /* Latar desktop hijau */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Container menyerupai tampilan mobile */
+.mobile-wrapper {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.top-header {
+    padding: 30px 25px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-logout {
+    border: 1px solid #517C32;
+    color: #517C32;
+    background: transparent;
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    background-color: #517C32;
+    color: white;
+}
+
+.header-icons {
+    display: flex;
+    gap: 12px;
+}
+
+.icon-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #517C32;
+    font-weight: bold;
+}
+
+.icon-btn img {
+    width: 16px;
+    height: 16px;
+}
+
+.greeting {
+    padding: 10px 25px;
+    color: #3b611e;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0;
+}
+
+/* Main Content Card (Greyish background with top shadow) */
+.main-card {
+    background-color: #fcfdfc;
+    flex-grow: 1;
+    margin-top: 100px;
+    /* Ruang untuk logo */
+    border-radius: 45px 45px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.04);
+    position: relative;
+    padding: 60px 25px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Extra padding at bottom for the plant */
+    padding-bottom: 80px;
+}
+
+/* Central Logo */
+.logo-circle {
+    width: 130px;
+    height: 130px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: -65px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.logo-circle img {
+    width: 70px;
+    height: auto;
+}
+
+/* Realtime Stats */
+.realtime-stats {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.rt-box {
+    text-align: center;
+}
+
+.rt-box h3 {
+    font-size: 2rem;
+    color: #3b611e;
+    margin: 0;
+    font-weight: 800;
+    display: flex;
+    justify-content: center;
+}
+
+.rt-box p {
+    font-size: 0.75rem;
+    color: #767676;
+    margin: 5px 0 0;
+    font-weight: 600;
+}
+
+.dot-unit {
+    width: 8px;
+    height: 8px;
+    background-color: #517C32;
+    border-radius: 50%;
+    margin-left: 5px;
+    margin-top: 8px;
+}
+
+.mqtt-status {
+    font-size: 0.75rem;
+    text-align: center;
+    margin-bottom: 25px;
+    color: #767676;
+    background: transparent;
+}
+
+/* Settings Cards */
+.setting-card {
+    background: white;
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+    z-index: 5;
+}
+
+.setting-card:hover {
+    transform: translateY(-3px);
+}
+
+.setting-card h2 {
+    font-size: 3.5rem;
+    color: #3b611e;
+    margin: 0;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: flex-start;
+}
+
+.setting-card .dot-unit {
+    width: 12px;
+    height: 12px;
+    margin-left: 5px;
+    margin-top: 15px;
+}
+
+.setting-card p {
+    margin: 5px 0 0;
+    color: #3b611e;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+/* Schedule Section */
+.schedule-section {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    position: relative;
+    z-index: 5;
+}
+
+.schedule-section h3 {
+    color: #3b611e;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.day-selector {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.day-item {
+    font-size: 0.7rem;
+    color: #3b611e;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Custom Checkbox */
+.day-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    background-color: #fff;
+    border: 2px solid #517C32;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}
+
+.day-item input[type="checkbox"]:checked {
+    background-color: #517C32;
+}
+
+.day-item input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Time Input */
+.time-container {
+    position: relative;
+    width: 80%;
+    margin: 0 auto 20px;
+}
+
+.time-container input {
+    width: 100%;
+    padding: 12px 40px 12px 20px;
+    border: 1px solid #517C32;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    color: #3b611e;
+    font-weight: 600;
+    text-align: center;
+    box-sizing: border-box;
+    font-family: inherit;
+    outline: none;
+}
+
+.time-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+/* btn set */
+.btn-set {
+    background-color: #4B7838;
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 15px rgba(81, 124, 50, 0.3);
+}
+
+.btn-set:hover {
+    background-color: #3a5c2b;
+    transform: translateY(-2px);
+}
+
+/* Plant Decoration */
+.plant-deco {
+    position: absolute;
+    bottom: 20px;
+    right: -80px;
+    width: 280px;
+    z-index: 0;
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 320px;
+    text-align: center;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #517C32;
+    font-size: 1.5rem;
+}
+
+.close-btn {
+    font-size: 1.5rem;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.modal-line {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.counter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.btn-counter {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #f0f0f0;
+    color: #517C32;
+    font-size: 1.2rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.value-display {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #3b611e;
+    display: flex;
+    align-items: flex-start;
+}
+
+.modal-btn {
+    width: 100%;
+}

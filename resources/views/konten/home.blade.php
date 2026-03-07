@@ -99,8 +99,8 @@
         <button class="btn-set" onclick="kirimJadwal()">Simpan Jadwal</button>
     </div>
 
-    <img class="leaf left" src="{{ asset('image/daun.png') }}" alt="leaf" />
-    <img class="leaf right" src="{{ asset('image/daun.png') }}" alt="leaf" />
+    {{-- <img class="leaf left" src="{{ asset('image/pohon.png') }}" alt="leaf" /> --}}
+    <img class="leaf right" src="{{ asset('image/pohon2.png') }}" alt="leaf" />
 </div>
 
 <div id="thresholdModal" class="modal-overlay" style="display: none;">
