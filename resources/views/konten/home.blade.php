@@ -14,16 +14,23 @@
         @csrf
         <button type="submit" class="logout">Log Out</button>
     </form>
-    <div class="notif">
-        <a href="{{ url('/notification') }}"><img src="{{ asset('image/notif.svg') }}" alt="Notifikasi"/></a>
+    <div class="nav-icons">
+        <div class="info">
+            <a href="{{ url('/info') }}"><img src="{{ asset('image/info.png') }}" alt="Info"/></a>
+        </div>
+        <div class="notif">
+            <a href="{{ url('/notification') }}"><img src="{{ asset('image/notif.svg') }}" alt="Notifikasi"/></a>
+        </div>
     </div>
 </div>
 
-<h1>Halo,<br>Pak Jondol</h1>
+<h1>Halo,<br>Agro Squad</h1>
 
 <div class="card">
     <div class="logo-circle">
-        <img src="{{ asset('image/logo.png') }}" alt="Logo" />
+        <a href="{{ url('/ai') }}">
+            <img src="{{ asset('image/logo.png') }}" alt="Logo" />
+        </a>
     </div>
     <div class="realtime-header">
         <div class="rt-box left">

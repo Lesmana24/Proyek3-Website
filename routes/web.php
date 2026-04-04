@@ -5,6 +5,7 @@ use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PlantScanController;
 Route::get('/', function () {
     $title = 'Selamat Datang';
     $slug = 'welcome';
@@ -34,3 +35,13 @@ Route::delete('/notification/clear', [NotificationController::class, 'deleteAll'
 
 Route::post('/update-setting', [HomeController::class, 'updateSettings'])->name('update.setting');
 Route::post('/simpan-notif', [NotificationController::class, 'storeLog']);
+
+//ai
+Route::get('/ai', [PlantScanController::class, 'index'])->middleware('auth:pengguna')->name('ai.index');
+
+Route::post('/ai/upload', [PlantScanController::class, 'upload'])->name('ai.upload');
+Route::get('/ai/result/preview', [PlantScanController::class, 'preview'])->name('ai.preview');
+Route::post('/ai/result/store', [PlantScanController::class, 'storeReport'])->name('ai.store');
+Route::post('/ai/result/reset', [PlantScanController::class, 'reset'])->name('ai.reset');
+Route::get('/ai/result/{id}', [PlantScanController::class, 'result'])->name('ai.result');
+Route::post('/api/chat-botanist', [PlantScanController::class, 'chatBotanist'])->name('ai.chat');
