@@ -62,8 +62,8 @@ class PlantScanController extends Controller
                         $status_kesehatan = 'infected';
                     }
 
-                    // Integrasi ke Gemini API untuk Panduan Perawatan secara sekuensial
-                    $geminiData = $this->getPlantCareFromGemini($nama_tanaman, $nama_penyakit);
+                    // Integrasi ke Groq API (Llama 3) untuk Panduan Perawatan secara sekuensial
+                    $groqData = $this->getPlantCareFromGroq($nama_tanaman, $nama_penyakit);
 
                     // Simpan state hasil ini ke dalam session SEMENTARA
                     session(['temp_ai_scan' => [
@@ -72,10 +72,10 @@ class PlantScanController extends Controller
                         'plant_name' => $nama_tanaman,
                         'disease_name' => $nama_penyakit,
                         'confidence_score' => $akurasi,
-                        'care_light' => $geminiData['care_light'] ?? 'Informasi belum tersedia.',
-                        'care_water' => $geminiData['care_water'] ?? 'Informasi belum tersedia.',
-                        'care_temperature' => $geminiData['care_temperature'] ?? 'Informasi belum tersedia.',
-                        'problems_list' => $geminiData['problems_list'] ?? [],
+                        'care_light' => $groqData['care_light'] ?? 'Informasi belum tersedia.',
+                        'care_water' => $groqData['care_water'] ?? 'Informasi belum tersedia.',
+                        'care_temperature' => $groqData['care_temperature'] ?? 'Informasi belum tersedia.',
+                        'problems_list' => $groqData['problems_list'] ?? [],
                     ]]);
 
                     // Kembalikan response sukses ke frontend (AJAX/Fetch)
@@ -201,13 +201,13 @@ class PlantScanController extends Controller
     }
 
     /**
-     * Memanggil Google Gemini API untuk generate panduan
+     * Memanggil Groq API (Llama 3) untuk generate panduan perawatan (JSON Mode)
      */
-    private function getPlantCareFromGemini($plantName, $diseaseName)
+    private function getPlantCareFromGroq($plantName, $diseaseName)
     {
-        $apiKey = config('services.gemini.api_key');
+        $apiKey = env('GROQ_API_KEY');
         if (!$apiKey) {
-            \Illuminate\Support\Facades\Log::error('GEMINI API KEY tidak terkonfigurasi di config/services.php atau .env');
+            \Illuminate\Support\Facades\Log::error('GROQ_API_KEY tidak terkonfigurasi di file .env');
             return [];
         }
 
@@ -224,57 +224,54 @@ WAJIB balas HANYA dengan response JSON murni tanpa markdown backticks. Gunakan s
 
         try {
             $response = Http::withoutVerifying()
+                ->retry(1, 1000)
+                ->withToken($apiKey) // Inject Token via Header Bearer Auth
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt]
+                ])->post("https://api.groq.com/openai/v1/chat/completions", [
+                    'model' => 'llama-3.1-8b-instant',
+                    'messages' => [
+                        [
+                            'role' => 'user', // Kita masukkan langsung as User prompt
+                            'content' => $prompt
                         ]
-                    ]
-                ],
-                // Mengurangi suhu agar lebih konsisten format JSON-nya
-                'generationConfig' => [
-                    'temperature' => 0.2,
-                    'responseMimeType' => 'application/json'
-                ]
-            ]);
+                    ],
+                    'temperature' => 0.7,
+                    'response_format' => ['type' => 'json_object'] // Flag Groq JSON Mode
+                ]);
 
             if ($response->successful()) {
                 $result = $response->json();
                 
-                // 1. Ekstraksi String dari kembalian Gemini
-                $jsonString = $result['candidates'][0]['content']['parts'][0]['text'] ?? '{}';
+                // 1. Ekstraksi String dari format respon Groq (OpenAI style)
+                $jsonString = $result['choices'][0]['message']['content'] ?? '{}';
                 
-                // 2. BERSHKAN Markdown (Hapus ```json dan ```) menggunakan Regex
-                $jsonString = preg_replace('/^```(?:json)?\s*/i', '', $jsonString); // hapus backtick awalan
-                $jsonString = preg_replace('/\s*```$/i', '', $jsonString);         // hapus backtick akhiran
+                // 2. BERSIHKAN Markdown jika Llama3 ngotot nge-generate backticks
+                $jsonString = preg_replace('/^```(?:json)?\s*/i', '', $jsonString);
+                $jsonString = preg_replace('/\s*```$/i', '', $jsonString);
                 $jsonString = trim($jsonString);
                 
-                // Parse string JSON tersebut menjadi Associative Array
+                // 3. Parse JSON menjadi Associative Array
                 $decoded = json_decode($jsonString, true);
                 
-                // Validasi gagal parse
                 if (json_last_error() !== JSON_ERROR_NONE) {
-                    \Illuminate\Support\Facades\Log::error("Gemini JSON Parse Error: " . json_last_error_msg() . " | Raw Response: " . $jsonString);
+                    \Illuminate\Support\Facades\Log::error("Groq JSON Parse Error: " . json_last_error_msg() . " | Raw Response: " . $jsonString);
                     return [];
                 }
                 
                 return $decoded;
             } else {
-                \Illuminate\Support\Facades\Log::error("Gemini Response Failed: " . $response->body());
+                \Illuminate\Support\Facades\Log::error("Groq Response Failed (Status " . $response->status() . "): " . $response->body());
                 return [];
             }
         } catch (\Exception $e) {
-            // 3. Error Handling - Log ke storage/logs/laravel.log
-            \Illuminate\Support\Facades\Log::error("Gemini Exception: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error("Groq Exception: " . $e->getMessage());
             return [];
         }
     }
 
     /**
-     * Memproses chat dari user ke Gemini API via AJAX
+     * Memproses chat dari user ke Groq API (Llama 3) via AJAX
      */
     public function chatBotanist(Request $request)
     {
@@ -284,9 +281,9 @@ WAJIB balas HANYA dengan response JSON murni tanpa markdown backticks. Gunakan s
             'disease' => 'nullable|string'
         ]);
 
-        $apiKey = config('services.gemini.api_key');
+        $apiKey = env('GROQ_API_KEY');
         if (!$apiKey) {
-            return response()->json(['reply' => 'Maaf, API Key Gemini tidak terkonfigurasi di server.'], 500);
+            return response()->json(['reply' => 'Maaf, API Key Groq tidak terkonfigurasi di server (.env).'], 500);
         }
 
         $plantName = $request->input('plant_name');
@@ -304,36 +301,37 @@ WAJIB balas HANYA dengan response JSON murni tanpa markdown backticks. Gunakan s
             ]);
         }
 
-        $prompt = "ROLE: Anda adalah Pakar Agronomi dan Ahli Patologi Tumbuhan profesional.
+        $systemPrompt = "ROLE: Anda adalah Pakar Agronomi dan Ahli Patologi Tumbuhan profesional.
 CONTEXT: User saat ini sedang melihat hasil diagnosa tanaman [{$plantName}] yang terindikasi [{$kondisi}].
 TONE & STYLE: Gunakan bahasa Indonesia yang baku, profesional, dan to-the-point. Jawaban harus berbasis sains, objektif, dan langsung memberikan informasi atau solusi praktis.
 NEGATIVE CONSTRAINTS (LARANGAN KERAS): DILARANG KERAS menggunakan kata seru/basa-basi (seperti 'Wah', 'Hmm', 'Aduh'). DILARANG memberikan simpati emosional (seperti 'Saya mengerti kebingungan Anda' atau 'Sayang sekali tanaman Anda sakit'). DILARANG menggunakan gaya bahasa kiasan atau hiperbola. Langsung jawab intinya saja.
 FORMATTING: Gunakan paragraf pendek. Anda boleh mem-bold (**teks**) kata kunci ilmiah atau bahan aktif untuk penekanan.
-STRICT GUARDRAILS: Kewajiban Mutlak: Anda HANYA diizinkan menjawab pertanyaan seputar tanaman, pertanian, botani, hama, penyakit, dan cara perawatannya. Jika user bertanya topik DI LUAR itu (seperti matematika, teknologi, politik, cuaca, hiburan, dll), ANDA WAJIB MENOLAK UNTUK MENJAWAB. Jangan memberikan solusi atau menebak jawaban. Langsung balas dengan kalimat sopan seperti: 'Mohon maaf, saya adalah pakar agronomi. Saya hanya bisa membantu menjawab pertanyaan seputar perawatan tanaman dan patologi tumbuhan.'
-INPUT USER: Pertanyaan: \"{$userMessage}\"";
+STRICT GUARDRAILS: Kewajiban Mutlak: Anda HANYA diizinkan menjawab pertanyaan seputar tanaman, pertanian, botani, hama, penyakit, dan cara perawatannya. Jika user bertanya topik DI LUAR itu (seperti matematika, teknologi, politik, cuaca, hiburan, dll), ANDA WAJIB MENOLAK UNTUK MENJAWAB. Jangan memberikan solusi atau menebak jawaban. Langsung balas dengan kalimat sopan seperti: 'Mohon maaf, saya adalah pakar agronomi. Saya hanya bisa membantu menjawab pertanyaan seputar perawatan tanaman dan patologi tumbuhan.'";
 
         try {
             $response = Http::withoutVerifying()
+                ->retry(3, 1000) // Coba ulang 3 kali dengan jeda 1 detik jika gagal
+                ->withToken($apiKey) // Menggunakan Bearer Token (Groq format)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt]
+                ])->post("https://api.groq.com/openai/v1/chat/completions", [
+                    'model' => 'llama-3.1-8b-instant',
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => $systemPrompt
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => "Pertanyaan: " . $userMessage
                         ]
-                    ]
-                ],
-                // Sedikit kreasi agar AI menjawab dengan cara yang tegas dan formal
-                'generationConfig' => [
+                    ],
                     'temperature' => 0.3,
-                ]
-            ]);
+                ]);
 
             if ($response->successful()) {
-                $result = $response->json();
-                
-                $reply = $result['candidates'][0]['content']['parts'][0]['text'] ?? 'Maaf, AI tidak memberikan balasan.';
+                // Parsing response bergaya OpenAI/Groq
+                $reply = $response->json('choices.0.message.content') ?? 'Maaf, AI tidak memberikan balasan.';
                 
                 // Simpan balasan AI ke database jika scan_id ada
                 if ($scanId) {
@@ -348,12 +346,42 @@ INPUT USER: Pertanyaan: \"{$userMessage}\"";
                     'reply' => trim($reply)
                 ]);
             } else {
-                \Illuminate\Support\Facades\Log::error("Gemini Chat Response Failed: " . $response->body());
-                return response()->json(['reply' => 'Maaf, terjadi masalah koneksi dengan AI.'], 500);
+                \Illuminate\Support\Facades\Log::error("Groq Chat Response Failed: " . $response->body());
+                return response()->json(['reply' => 'Maaf, terjadi masalah koneksi dengan AI (Groq API).'], 500);
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Gemini Chat Exception: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error("Groq Chat Exception: " . $e->getMessage());
             return response()->json(['reply' => 'Maaf, server AI sedang sibuk atau offline.'], 500);
         }
+    }
+
+    /**
+     * Menghapus riwayat scan secara spesifik dari AJAX
+     */
+    public function destroy($id)
+    {
+        $scan = PlantHealthScan::where('id', $id)
+            ->where('user_id', Auth::guard('pengguna')->id())
+            ->first();
+
+        if (!$scan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Riwayat tidak ditemukan atau bukan milik Anda.'
+            ], 404);
+        }
+
+        // Hapus fisik gambar di storage
+        if (Storage::disk('public')->exists($scan->image_path)) {
+            Storage::disk('public')->delete($scan->image_path);
+        }
+
+        // Hapus record dari database
+        $scan->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Riwayat berhasil dihapus.'
+        ]);
     }
 }

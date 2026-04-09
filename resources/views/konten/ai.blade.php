@@ -2,6 +2,7 @@
 
 @section('title', $title ?? 'Cek Kesehatan Tanaman')
 @push('page-styles')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Radio+Canada:wght@400;600;700&display=swap" rel="stylesheet">
@@ -123,8 +124,13 @@
         <!-- History List -->
         <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50 pb-20">
             @forelse($historyScans as $scan)
-            <a href="{{ route('ai.result', $scan->id) }}" class="block w-full bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:shadow-md hover:border-[#4C732E]/30 transition group flex flex-col gap-3">
-                <div class="flex items-start gap-4">
+            <a href="{{ route('ai.result', $scan->id) }}" id="history-card-{{ $scan->id }}" class="relative block w-full bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:shadow-md hover:border-[#4C732E]/30 transition group flex flex-col gap-3">
+                <button onclick="deleteHistory(event, {{ $scan->id }})" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg md:opacity-0 group-hover:opacity-100 transition-all z-10 focus:opacity-100" title="Hapus Riwayat">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+                <div class="flex items-start gap-4 pr-6">
                     <img src="{{ Storage::url($scan->image_path) }}" alt="{{ $scan->plant_name }}" class="w-16 h-16 object-cover rounded-lg shadow-sm border border-gray-50">
                     <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-gray-800 truncate group-hover:text-[#4C732E] transition">{{ $scan->plant_name }}</h4>
@@ -160,6 +166,25 @@
                 <p class="text-xs text-gray-500">Anda belum pernah melakukan deteksi kesehatan tanaman.</p>
             </div>
             @endforelse
+        </div>
+    </div>
+
+    <!-- Custom Delete Confirm Modal -->
+    <div id="deleteConfirmModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] flex items-center justify-center transition-opacity duration-300 opacity-0">
+        <div id="deleteConfirmModalContent" class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Hapus Riwayat?</h3>
+                <p class="text-sm text-gray-500 mb-6">Apakah Anda yakin? Data dan foto deteksi ini akan dihapus secara permanen.</p>
+                <div class="flex gap-3 w-full">
+                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition">Batal</button>
+                    <button id="confirmDeleteBtn" class="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition flex items-center justify-center">Hapus</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -292,6 +317,127 @@
                 galleryInput.value = '';
                 selectedFile = null;
             }
+        }
+    });
+
+    let currentDeleteId = null;
+    let currentDeleteBtn = null;
+    let originalTrashHtml = null;
+
+    function deleteHistory(event, id) {
+        // Mencegah link a href ter-klik karena event bubbling
+        event.preventDefault();
+        event.stopPropagation();
+        
+        currentDeleteId = id;
+        currentDeleteBtn = event.currentTarget;
+        originalTrashHtml = event.currentTarget.innerHTML;
+
+        const modal = document.getElementById('deleteConfirmModal');
+        const modalContent = document.getElementById('deleteConfirmModalContent');
+        
+        modal.classList.remove('hidden');
+        // Timeout agar browser me-render display block sebelum memproses opacity & scale transition
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteConfirmModal');
+        const modalContent = document.getElementById('deleteConfirmModalContent');
+
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            currentDeleteId = null;
+            currentDeleteBtn = null;
+            originalTrashHtml = null;
+        }, 300);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (!currentDeleteId) return;
+
+                const id = currentDeleteId;
+                const btn = currentDeleteBtn;
+                const card = document.getElementById(`history-card-${id}`);
+                // Ambil HTML logo awal yang kita simpan agar kalau error, balikinnya gak nyangkut
+                const cachedHtml = originalTrashHtml;
+                
+                // Ubah tombol konfirmasi di modal jadi spinner
+                const confirmBtn = this;
+                const originalConfirmContent = confirmBtn.innerHTML;
+                confirmBtn.innerHTML = `<svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+                confirmBtn.disabled = true;
+
+                // Ubah ikon trash card yang ditekan awal jadi spinner kecil juga agar seragam
+                if (btn) {
+                    btn.innerHTML = `<svg class="animate-spin w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+                    btn.disabled = true;
+                }
+
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                const tokenString = csrfMeta ? csrfMeta.content : '{{ csrf_token() }}';
+
+                fetch(`/ai/history/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': tokenString,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(async response => {
+                    const data = await response.json().catch(() => null);
+                    if (!response.ok) {
+                        // Lempar ke catch block dengan pesan error agar mudah debug 
+                        throw new Error((data && data.message) ? data.message : `HTTP Error ${response.status}`);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    if (data && data.status === 'success') {
+                        closeDeleteModal();
+                        
+                        // Animasi saat berhasil hapus
+                        if (card) {
+                            card.style.transition = 'all 0.3s ease-out';
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(10px) scale(0.95)';
+                            
+                            setTimeout(() => {
+                                card.remove();
+                            }, 300);
+                        }
+                    } else {
+                        throw new Error((data && data.message) ? data.message : 'Respon JSON gagal menghapus riwayat.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saat Hapus Riwayat:', error);
+                    alert('Gagal Hapus: ' + error.message);
+                    
+                    closeDeleteModal();
+                    // Restore icon awal jika gagal
+                    if (btn) {
+                        btn.innerHTML = cachedHtml; 
+                        btn.disabled = false;
+                    }
+                })
+                .finally(() => {
+                    confirmBtn.innerHTML = originalConfirmContent;
+                    confirmBtn.disabled = false;
+                });
+            });
         }
     });
 </script>
