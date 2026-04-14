@@ -8,4 +8,3 @@ use App\Http\Controllers\NotificationController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-Route::post('/simpan-notif', [NotificationController::class, 'storeLog']);

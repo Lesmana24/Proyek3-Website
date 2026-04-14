@@ -5,7 +5,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/home-daftar.css') }}?v={{ filemtime(public_path('css/home-daftar.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/daftar.css') }}?v={{ filemtime(public_path('css/daftar.css')) }}">
 @endpush
 
 @section('content')
@@ -69,4 +69,4 @@
             </div>
         </div>
     </div>
-@endsection
+@endsection

@@ -4,7 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/home-welcome.css') }}?v={{ filemtime(public_path('css/home-welcome.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}?v={{ filemtime(public_path('css/welcome.css')) }}">
 @endpush
 @section('content')
 <div class="welcome-container">
@@ -23,8 +23,8 @@
         <div class="image-wrapper">
             <div class="shape-bg"></div>
             
-            <img src="{{ asset('image/pohon.png') }}" alt="Plant Image" class="plant-image">
+            <img src="{{ asset('image/pohon.png') }}" alt="Plant" class="plant-image">
         </div>
     </div>
 </div>
-@endsection
+@endsection

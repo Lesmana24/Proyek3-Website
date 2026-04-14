@@ -154,7 +154,8 @@ h1 {
     height: 24px;
     fill: #a5d6a7; /* Warna hijau muda */
     cursor: pointer;
-    transition: fill 0.3s ease, transform 0.2s ease;
+    z-index: 10;
+    transition: all 0.3s ease;
 }
 
 .settings-icon:hover {
@@ -446,31 +447,6 @@ h1 {
 }
 
 /* =========================================
-   1. CSS UNTUK TOMBOL IKON (GEAR)
-   ========================================= */
-.status-box {
-    /* Pastikan ini ada agar ikon bisa diposisikan di pojok */
-    position: relative; 
-}
-
-.settings-icon {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 24px;  /* PENTING: Agar ikon punya ukuran */
-    height: 24px; /* PENTING: Agar ikon punya ukuran */
-    fill: #a5d6a7;
-    cursor: pointer;
-    z-index: 10; /* Agar ikon berada di atas background */
-    transition: all 0.3s ease;
-}
-
-.settings-icon:hover {
-    fill: #45842E;
-    transform: rotate(30deg);
-}
-
-/* =========================================
    2. CSS UNTUK POPUP (MODAL)
    ========================================= */
 .modal-overlay {
@@ -614,10 +590,70 @@ h1 {
     font-weight: 600;
 }
 
+/* CSS Khusus untuk Drawer agar tidak mengganggu home.css lu */
+    .custom-backdrop {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9998; opacity: 0; visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .custom-backdrop.show {
+        opacity: 1; visibility: visible; cursor: pointer;
+    }
+    .custom-drawer {
+        position: fixed; top: 0; right: -450px; /* Sembunyi di luar layar kanan */
+        width: 100%; max-width: 400px; height: 100vh;
+        background-color: #ffffff; box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+        z-index: 9999; transition: right 0.3s ease-in-out;
+        overflow-y: auto; font-family: sans-serif;
+    }
+    .custom-drawer.open { right: 0; /* Muncul ke layar */ }
+    
+    .drawer-header {
+        position: sticky; top: 0; background-color: #f0fdf4;
+        border-bottom: 1px solid #bbf7d0; padding: 16px 24px;
+        display: flex; justify-content: space-between; align-items: center; z-index: 10;
+    }
+    .drawer-header-title {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 1.25rem; font-weight: bold; color: #166534; margin: 0;
+    }
+    .drawer-close-btn {
+        background: none; border: none; cursor: pointer; color: #9ca3af;
+        padding: 5px; border-radius: 50%; transition: 0.2s;
+    }
+    .drawer-close-btn:hover { background-color: #fee2e2; color: #b91c1c; }
+    
+    .drawer-body { padding: 24px; }
+    .guide-section { margin-bottom: 24px; }
+    .guide-title {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 1.1rem; font-weight: bold; color: #166534; margin-bottom: 16px;
+    }
+    .icon-box {
+        background-color: #dcfce7; color: #15803d; padding: 8px;
+        border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    .guide-item {
+        display: flex; gap: 12px; margin-bottom: 16px;
+        font-size: 0.875rem; color: #374151; line-height: 1.5;
+    }
+    .guide-item b { color: #14532d; display: block; margin-bottom: 4px; }
+    .drawer-divider { border: 0; border-top: 1px solid #dcfce7; margin: 24px 0; }
+
 /* Penyesuaian Responsive (HP)
    Agar teks tidak bertabrakan dengan logo di layar kecil
 */
 @media (max-width: 480px) {
+    .nav-icons .info, 
+    .nav-icons .notif {
+        width: 36px;
+        padding: 8px; /* Memberi ruang bernapas ke icon agar tidak sesak */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .realtime-header {
         padding: 0 15px;
     }

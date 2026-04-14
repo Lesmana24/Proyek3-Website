@@ -4,7 +4,7 @@
 @push('page-styles')
     {{-- flatpickr --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}?v=1.2">
 @endpush
 
 @section('content')
@@ -49,22 +49,22 @@
     </div>
     <div class="status">
         <div class="status-box">
-            <div class="icon-action" role="button" onclick="window.openThresholdModal('Suhu', 24, '°')">
+            <button type="button" class="icon-action" aria-label="Setting Suhu" style="border:none;background:none;padding:0;" onclick="window.openThresholdModal('Suhu', 24, '°')">
                 <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.49l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
                 </svg>
-            </div>
+            </button>
 
             <h2 id="display-suhu">{{ $batasSuhu }}°</h2>
             <p>Batas Ambang Suhu</p>
         </div>
 
         <div class="status-box">
-             <div class="icon-action" role="button" onclick="window.openThresholdModal('Kelembapan', 60, '%')">
+             <button type="button" class="icon-action" aria-label="Setting Kelembapan" style="border:none;background:none;padding:0;" onclick="window.openThresholdModal('Kelembapan', 60, '%')">
                 <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.49l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
                 </svg>
-            </div>
+            </button>
 
             <h2 id="display-kelembapan">{{ $batasLembab }}%</h2>
             <p>Batas Ambang Kelembapan</p>
@@ -114,7 +114,7 @@
     <div class="modal-card">
         <div class="modal-header">
             <h3 id="modalTitle">Suhu</h3>
-            <span class="close-btn" onclick="window.closeModal()">&times;</span>
+            <button type="button" class="close-btn" aria-label="Tutup Panel" onclick="window.closeModal()" style="border:none;background:none;padding:0;cursor:pointer;">&times;</button>
         </div>
 
         <hr class="modal-line">
@@ -138,6 +138,91 @@
         </form>
     </div>
 </div>
+
+{{-- Section informasi --}}
+<div id="infoBackdrop" class="custom-backdrop"></div>
+
+<div id="infoDrawer" class="custom-drawer">
+    <div class="drawer-header">
+        <div class="drawer-header-title">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0-3.332-.477-4.5-1.253"></path></svg>
+            Panduan Sistem
+        </div>
+        <button id="closeDrawerBtn" class="drawer-close-btn">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+
+    <div class="drawer-body">
+        <div class="guide-section">
+            <div class="guide-title">
+                <div class="icon-box">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+                Pemantauan IoT
+            </div>
+            <div class="guide-item">
+                <svg width="20" height="20" stroke="#16a34a" fill="none" viewBox="0 0 24 24" style="flex-shrink:0; margin-top:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <div><b>Membaca Sensor:</b> Nilai Suhu dan Kelembapan ditangkap langsung dari alat secara realtime.</div>
+            </div>
+            <div class="guide-item">
+                <svg width="20" height="20" stroke="#16a34a" fill="none" viewBox="0 0 24 24" style="flex-shrink:0; margin-top:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                <div><b>Batas Ambang (Otomasi):</b> Klik icon roda gigi ⚙️ untuk mengubah batas. Pompa/kipas aktif sesuai ambang tersebut.</div>
+            </div>
+        </div>
+
+        <hr class="drawer-divider">
+
+        <div class="guide-section">
+            <div class="guide-title">
+                <div class="icon-box">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                Deteksi Penyakit (AI)
+            </div>
+            <div class="guide-item">
+                <svg width="20" height="20" stroke="#16a34a" fill="none" viewBox="0 0 24 24" style="flex-shrink:0; margin-top:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <div><b>Akses Fitur:</b> Klik logo Agro Squad melayang di atas untuk masuk ke halaman scan.</div>
+            </div>
+            <div class="guide-item">
+                <svg width="20" height="20" stroke="#16a34a" fill="none" viewBox="0 0 24 24" style="flex-shrink:0; margin-top:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <div><b>Upload Foto:</b> Unggah foto daun sakit. AI mendiagnosis Tomat, Cabai, Terong, dan Melon.</div>
+            </div>
+            <div class="guide-item">
+                <svg width="20" height="20" stroke="#16a34a" fill="none" viewBox="0 0 24 24" style="flex-shrink:0; margin-top:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                <div><b>Chat Botanist:</b> Setelah hasil keluar, Anda bisa chat AI untuk menanyakan obat/penanganan.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const backdrop = document.getElementById('infoBackdrop');
+        const drawer = document.getElementById('infoDrawer');
+        const btnClose = document.getElementById('closeDrawerBtn');
+        
+        // Targetkan tombol Info (A icon) yang ada di navbar lu
+        const infoBtn = document.querySelector('.info a');
+
+        function openDrawer(e) {
+            e.preventDefault(); // Mencegah pindah URL
+            backdrop.classList.add('show');
+            drawer.classList.add('open');
+            document.body.style.overflow = 'hidden'; // Kunci scroll layar utama
+        }
+
+        function closeDrawer() {
+            backdrop.classList.remove('show');
+            drawer.classList.remove('open');
+            document.body.style.overflow = ''; // Buka scroll
+        }
+
+        if(infoBtn) infoBtn.addEventListener('click', openDrawer);
+        if(btnClose) btnClose.addEventListener('click', closeDrawer);
+        if(backdrop) backdrop.addEventListener('click', closeDrawer);
+    });
+</script>
 
 {{-- ================= SCRIPT MQTT (PAHO) ================= --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>

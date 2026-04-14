@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Http;
 
 class PlantScanController extends Controller
 {
-    /**
-     * Menampilkan halaman awal dan mem-passing riwayat scan
-     */
+    const INFO_UNAVAILABLE = 'Informasi belum tersedia.';
     public function index()
     {
         $historyScans = PlantHealthScan::where('user_id', Auth::guard('pengguna')->id())
@@ -29,6 +27,9 @@ class PlantScanController extends Controller
         $request->validate([
             'image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
         ]);
+
+        $responseData = ['message' => 'Gambar gagal diunggah.', 'status' => 'error'];
+        $statusCode = 400;
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -52,9 +53,9 @@ class PlantScanController extends Controller
 
                     // Logic simpel: Kalau nama penyakitnya ada kata 'healthy', 'sehat', 'tidak ada', atau null/kosong, berarti sehat.
                     $penyakit_lower = strtolower($nama_penyakit);
-                    if (empty($nama_penyakit) || 
-                        str_contains($penyakit_lower, 'healthy') || 
-                        str_contains($penyakit_lower, 'sehat') || 
+                    if (empty($nama_penyakit) ||
+                        str_contains($penyakit_lower, 'healthy') ||
+                        str_contains($penyakit_lower, 'sehat') ||
                         str_contains($penyakit_lower, 'tidak ada')
                     ) {
                         $status_kesehatan = 'healthy';
@@ -72,39 +73,39 @@ class PlantScanController extends Controller
                         'plant_name' => $nama_tanaman,
                         'disease_name' => $nama_penyakit,
                         'confidence_score' => $akurasi,
-                        'care_light' => $groqData['care_light'] ?? 'Informasi belum tersedia.',
-                        'care_water' => $groqData['care_water'] ?? 'Informasi belum tersedia.',
-                        'care_temperature' => $groqData['care_temperature'] ?? 'Informasi belum tersedia.',
+                        'care_light' => $groqData['care_light'] ?? self::INFO_UNAVAILABLE,
+                        'care_water' => $groqData['care_water'] ?? self::INFO_UNAVAILABLE,
+                        'care_temperature' => $groqData['care_temperature'] ?? self::INFO_UNAVAILABLE,
                         'problems_list' => $groqData['problems_list'] ?? [],
                     ]]);
 
                     // Kembalikan response sukses ke frontend (AJAX/Fetch)
-                    return response()->json([
+                    $responseData = [
                         'message' => 'Analisis AI selesai! Memuat pratinjau...',
                         'status' => 'success',
                         'redirect_url' => route('ai.preview')
-                    ]);
+                    ];
+                    $statusCode = 200;
                 } else {
                     Storage::disk('public')->delete($path);
-                    return response()->json([
+                    $responseData = [
                         'message' => 'Gagal mendapatkan respon dari AI.',
                         'status' => 'error'
-                    ], 500);
+                    ];
+                    $statusCode = 500;
                 }
 
             } catch (\Exception $e) {
                 Storage::disk('public')->delete($path);
-                return response()->json([
-                    'message' => 'Server AI sedang offline. Pastikan uvicorn sudah menyala!',
-                    'status' => 'error'
-                ], 500);
+                $responseData = [
+                        'message' => 'Server AI sedang offline. Pastikan uvicorn sudah menyala!',
+                        'status' => 'error'
+                    ];
+                $statusCode = 500;
             }
         }
 
-        return response()->json([
-            'message' => 'Gambar gagal diunggah.',
-            'status' => 'error'
-        ], 400);
+        return response()->json($responseData, $statusCode);
     }
 
     /**
@@ -222,6 +223,8 @@ WAJIB balas HANYA dengan response JSON murni tanpa markdown backticks. Gunakan s
   \"problems_list\": [\"gejala 1\", \"gejala 2\", \"solusi 1\"]
 }";
 
+        $resultData = [];
+
         try {
             $response = Http::withoutVerifying()
                 ->retry(1, 1000)
@@ -256,18 +259,17 @@ WAJIB balas HANYA dengan response JSON murni tanpa markdown backticks. Gunakan s
                 
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     \Illuminate\Support\Facades\Log::error("Groq JSON Parse Error: " . json_last_error_msg() . " | Raw Response: " . $jsonString);
-                    return [];
+                } else {
+                    $resultData = $decoded;
                 }
-                
-                return $decoded;
             } else {
                 \Illuminate\Support\Facades\Log::error("Groq Response Failed (Status " . $response->status() . "): " . $response->body());
-                return [];
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Groq Exception: " . $e->getMessage());
-            return [];
         }
+
+        return $resultData;
     }
 
     /**
@@ -308,6 +310,9 @@ NEGATIVE CONSTRAINTS (LARANGAN KERAS): DILARANG KERAS menggunakan kata seru/basa
 FORMATTING: Gunakan paragraf pendek. Anda boleh mem-bold (**teks**) kata kunci ilmiah atau bahan aktif untuk penekanan.
 STRICT GUARDRAILS: Kewajiban Mutlak: Anda HANYA diizinkan menjawab pertanyaan seputar tanaman, pertanian, botani, hama, penyakit, dan cara perawatannya. Jika user bertanya topik DI LUAR itu (seperti matematika, teknologi, politik, cuaca, hiburan, dll), ANDA WAJIB MENOLAK UNTUK MENJAWAB. Jangan memberikan solusi atau menebak jawaban. Langsung balas dengan kalimat sopan seperti: 'Mohon maaf, saya adalah pakar agronomi. Saya hanya bisa membantu menjawab pertanyaan seputar perawatan tanaman dan patologi tumbuhan.'";
 
+        $responseData = [];
+        $statusCode = 200;
+
         try {
             $response = Http::withoutVerifying()
                 ->retry(3, 1000) // Coba ulang 3 kali dengan jeda 1 detik jika gagal
@@ -342,17 +347,19 @@ STRICT GUARDRAILS: Kewajiban Mutlak: Anda HANYA diizinkan menjawab pertanyaan se
                     ]);
                 }
 
-                return response()->json([
-                    'reply' => trim($reply)
-                ]);
+                $responseData = ['reply' => trim($reply)];
             } else {
                 \Illuminate\Support\Facades\Log::error("Groq Chat Response Failed: " . $response->body());
-                return response()->json(['reply' => 'Maaf, terjadi masalah koneksi dengan AI (Groq API).'], 500);
+                $responseData = ['reply' => 'Maaf, terjadi masalah koneksi dengan AI (Groq API).'];
+                $statusCode = 500;
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Groq Chat Exception: " . $e->getMessage());
-            return response()->json(['reply' => 'Maaf, server AI sedang sibuk atau offline.'], 500);
+            $responseData = ['reply' => 'Maaf, server AI sedang sibuk atau offline.'];
+            $statusCode = 500;
         }
+
+        return response()->json($responseData, $statusCode);
     }
 
     /**
